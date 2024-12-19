@@ -4,6 +4,9 @@ const clearButton = document.getElementById("clearButton");
 const predictButton = document.getElementById("predictButton");
 const predictionResult = document.getElementById("predictionResult");
 
+let drawing = false;
+let placeholderVisible = true;
+
 // Initialize canvas with a placeholder message
 function initializeCanvas() {
   ctx.fillStyle = "white";
@@ -15,16 +18,22 @@ function initializeCanvas() {
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
   ctx.fillText("Draw Here", canvas.width / 2, canvas.height / 2);
+  placeholderVisible = true;
 }
 
-// Set up drawing
-let drawing = false;
+// Clear placeholder text before drawing
+function clearPlaceholder() {
+  if (placeholderVisible) {
+    ctx.fillStyle = "white";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    placeholderVisible = false;
+  }
+}
 
 // Mouse events
 canvas.addEventListener("mousedown", startDrawing);
 canvas.addEventListener("mousemove", draw);
 canvas.addEventListener("mouseup", stopDrawing);
-canvas.addEventListener("mouseout", stopDrawing);
 
 // Touch events
 canvas.addEventListener("touchstart", startDrawingTouch);
@@ -32,18 +41,14 @@ canvas.addEventListener("touchmove", drawTouch);
 canvas.addEventListener("touchend", stopDrawing);
 
 function startDrawing(event) {
-  if (!drawing) {
-    clearPlaceholder();
-  }
+  clearPlaceholder(); // Ensure placeholder is cleared only once
   drawing = true;
   draw(event);
 }
 
 function startDrawingTouch(event) {
   event.preventDefault();
-  if (!drawing) {
-    clearPlaceholder();
-  }
+  clearPlaceholder(); // Ensure placeholder is cleared only once
   drawing = true;
   drawTouch(event);
 }
@@ -103,12 +108,6 @@ clearButton.addEventListener("click", () => {
   initializeCanvas();
   predictionResult.innerHTML = "";
 });
-
-// Clear placeholder text when drawing starts
-function clearPlaceholder() {
-  ctx.fillStyle = "white";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-}
 
 // Convert canvas to base64 and send to Flask backend for prediction
 predictButton.addEventListener("click", async () => {
