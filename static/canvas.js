@@ -4,9 +4,18 @@ const clearButton = document.getElementById("clearButton");
 const predictButton = document.getElementById("predictButton");
 const predictionResult = document.getElementById("predictionResult");
 
-// Initialize canvas with black background
-ctx.fillStyle = "white";
-ctx.fillRect(0, 0, canvas.width, canvas.height);
+// Initialize canvas with a placeholder message
+function initializeCanvas() {
+  ctx.fillStyle = "white";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Draw placeholder text
+  ctx.fillStyle = "gray";
+  ctx.font = "20px Arial";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText("Draw Here", canvas.width / 2, canvas.height / 2);
+}
 
 // Set up drawing
 let drawing = false;
@@ -23,12 +32,18 @@ canvas.addEventListener("touchmove", drawTouch);
 canvas.addEventListener("touchend", stopDrawing);
 
 function startDrawing(event) {
+  if (!drawing) {
+    clearPlaceholder();
+  }
   drawing = true;
   draw(event);
 }
 
 function startDrawingTouch(event) {
   event.preventDefault();
+  if (!drawing) {
+    clearPlaceholder();
+  }
   drawing = true;
   drawTouch(event);
 }
@@ -83,12 +98,17 @@ function drawTouch(event) {
   ctx.moveTo(x, y);
 }
 
-// Clear canvas
+// Clear canvas and reinitialize with placeholder
 clearButton.addEventListener("click", () => {
-  ctx.fillStyle = "white";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  initializeCanvas();
   predictionResult.innerHTML = "";
 });
+
+// Clear placeholder text when drawing starts
+function clearPlaceholder() {
+  ctx.fillStyle = "white";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+}
 
 // Convert canvas to base64 and send to Flask backend for prediction
 predictButton.addEventListener("click", async () => {
@@ -127,3 +147,5 @@ predictButton.addEventListener("click", async () => {
     predictButton.disabled = false;
   }
 });
+
+initializeCanvas();

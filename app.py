@@ -11,6 +11,13 @@ onnx_model_path = "./mnist_model.onnx"
 ort_session = ort.InferenceSession(onnx_model_path)
 
 
+# This function takes a base64-encoded image, decodes and processes it into
+# a format suitable for input into a machine learning model.
+# The image is converted to grayscale, resized to 28x28 pixels, normalized,
+# and reshaped to match the input format expected by models like those
+# trained on the MNIST dataset.
+
+
 def preprocess_image(image_data):
     try:
         img_data = base64.b64decode(image_data.split(",")[1])

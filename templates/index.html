@@ -1,31 +1,61 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Handwritten Digit Recognition</title>
-    <link
-      rel="stylesheet"
-      href="{{ url_for('static', filename='style.css') }}"
-    />
-    <link
-      rel="shortcut icon"
-      href="{{ url_for('static', filename='favicon.ico') }}"
-    />
-  </head>
-  <body>
-    <div class="container">
-      <h1>Draw a Digit</h1>
-      <canvas id="drawingCanvas" width="280" height="280"></canvas>
-      <div class="buttons">
-        <button id="clearButton">Clear</button>
-        <button id="predictButton">Predict</button>
-      </div>
-      <div id="predictionResult"></div>
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Handwritten Digit Recognition</title>
+  <meta name="description"
+    content="digit recognition app built to demonstrate how ML models work with real-time input. It processes user-drawn images into a 28x28 array and predicts the digit instantly." />
+  <meta name="keywords"
+    content="handwritten digit recognition, MNIST, machine learning, neural network, HTML canvas, AI, digit prediction, interactive demo, digit classification">
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+  <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css"
+    integrity="sha512-5Hs3dF2AEPkpNAR7UiOHba+lRSJNeM2ECkwxUIxC1Q/FLycGTbNapWXB4tP889k5T5Ju8fs4b1P5z/iB4nMfSQ=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+
+<body>
+  <div class="container">
+    <h1>Handwritten Digit Recognition</h1>
+    <canvas id="drawingCanvas" width="280" height="280"></canvas>
+    <p class="note">
+      <strong>Note:</strong> This model is underfitted and may provide
+      incorrect predictions.
+    </p>
+    <div class="buttons">
+      <button id="clearButton">Clear</button>
+      <button id="predictButton">Predict</button>
     </div>
-    <script src="{{ url_for('static', filename='canvas.js') }}"></script>
-    <script>
-      const predictionEndpoint = "{{ url_for('predict') }}";
-    </script>
-  </body>
+    <div id="predictionResult"></div>
+    <p class="description">
+      <hr />
+      This application demonstrates a handwritten digit recognition model trained on the <a
+        href="https://www.kaggle.com/datasets/hotk/mnist-dataset">MNIST</a> dataset. Users can draw a
+      digit on the <a href="https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API">HTML canvas</a>, which
+      processes the input as a 28x28 grayscale image and converts it into an
+      intensity-based array. The model predicts the digit based on this input and displays the result.
+      <br />
+      <br />
+      This flask application is deployed on <a href="https://www.pythonanywhere.com/">pythonanywhere</a>. I build a
+      keras
+      model and it runs on <a href="https://onnx.ai/">onnx</a> runtime. This site eill be disabled on 19 March 2025.
+    </p>
+    <div class="links">
+      <a href="https://github.com/adimail/digit-recognizer" target="_blank" class="icon-link">
+        <i class="fab fa-github"></i> GitHub
+      </a>
+      <!--<a href="" target="_blank" class="icon-link">-->
+      <!--  <i class="fab fa-kaggle"></i> Kaggle Notebook-->
+      <!--</a>-->
+    </div>
+  </div>
+  <script src="{{ url_for('static', filename='canvas.js') }}"></script>
+  <script>
+    const predictionEndpoint = "{{ url_for('predict') }}";
+  </script>
+</body>
+
 </html>
