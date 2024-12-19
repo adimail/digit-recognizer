@@ -4,30 +4,14 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Handwritten Digit Recognition</title>
-    <style>
-      body {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        margin: 0;
-        font-family: Arial, sans-serif;
-      }
-      .container {
-        text-align: center;
-      }
-      canvas {
-        border: 2px solid #333;
-        background-color: black;
-      }
-      .buttons {
-        margin-top: 10px;
-      }
-      button {
-        margin: 0 10px;
-        padding: 5px 10px;
-      }
-    </style>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+    <link
+      rel="shortcut icon"
+      href="{{ url_for('static', filename='favicon.ico') }}"
+    />
   </head>
   <body>
     <div class="container">
@@ -39,102 +23,9 @@
       </div>
       <div id="predictionResult"></div>
     </div>
+    <script src="{{ url_for('static', filename='canvas.js') }}"></script>
     <script>
-      const canvas = document.getElementById("drawingCanvas");
-      const ctx = canvas.getContext("2d");
-      const clearButton = document.getElementById("clearButton");
-      const predictButton = document.getElementById("predictButton");
-      const predictionResult = document.getElementById("predictionResult");
-
-      // Initialize canvas with black background
-      ctx.fillStyle = "white";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      // Set up drawing
-      let drawing = false;
-      canvas.addEventListener("mousedown", startDrawing);
-      canvas.addEventListener("mousemove", draw);
-      canvas.addEventListener("mouseup", stopDrawing);
-      canvas.addEventListener("mouseout", stopDrawing);
-
-      function startDrawing(event) {
-        drawing = true;
-        draw(event);
-      }
-
-      function stopDrawing() {
-        drawing = false;
-        ctx.beginPath();
-      }
-
-      function draw(event) {
-        if (!drawing) return;
-
-        // Set drawing properties
-        ctx.lineWidth = 20;
-        ctx.lineCap = "round";
-        ctx.strokeStyle = "black";
-
-        // Draw line
-        ctx.lineTo(
-          event.clientX - canvas.offsetLeft,
-          event.clientY - canvas.offsetTop,
-        );
-        ctx.stroke();
-
-        // Reset path
-        ctx.beginPath();
-        ctx.moveTo(
-          event.clientX - canvas.offsetLeft,
-          event.clientY - canvas.offsetTop,
-        );
-      }
-
-      // Clear canvas
-      clearButton.addEventListener("click", () => {
-        ctx.fillStyle = "white";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        predictionResult.innerHTML = "";
-      });
-
-      // Convert canvas to base64 and send to Flask backend for prediction
-      predictButton.addEventListener("click", async () => {
-        try {
-          predictionResult.innerHTML = "Predicting...";
-          predictButton.disabled = true;
-
-          // Convert canvas to data URL
-          const imageData = canvas.toDataURL();
-
-          // Send prediction request
-          const response = await fetch("/predict", {
-            method: "POST",
-            body: new URLSearchParams({ image: imageData }),
-            headers: {
-              "Content-Type": "application/x-www-form-urlencoded",
-            },
-          });
-
-          // Check response
-          if (!response.ok) {
-            throw new Error("Prediction request failed");
-          }
-
-          // Process result
-          const result = await response.json();
-          if (result.error) {
-            predictionResult.innerHTML = "Error: " + result.error;
-          } else {
-            predictionResult.innerHTML =
-              "Predicted Digit: " + result.prediction;
-          }
-        } catch (error) {
-          predictionResult.innerHTML = "Network or prediction error";
-          console.error(error);
-        } finally {
-          predictButton.disabled = false;
-        }
-      });
+      const predictionEndpoint = "{{ url_for('predict') }}";
     </script>
   </body>
 </html>

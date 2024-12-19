@@ -39,9 +39,6 @@ def predict():
         input_name = ort_session.get_inputs()[0].name
         outputs = ort_session.run(None, {input_name: input_data})
         predicted_class = np.argmax(outputs[0], axis=1)[0]
-        print(input_data)
-        print("Raw model outputs:", outputs[0])
-        print("Predicted class:", predicted_class)
 
         return jsonify({"prediction": str(predicted_class)})
     except Exception as e:
