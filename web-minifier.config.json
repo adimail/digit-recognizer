@@ -1,0 +1,10 @@
+{
+  "js": {
+    "input": "static",
+    "output": "build/static"
+  },
+  "css": {
+    "input": "static",
+    "output": "build/static",
+  }
+}
