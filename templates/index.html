@@ -4,10 +4,30 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Handwritten Digit Recognition</title>
-    <link
-      rel="stylesheet"
-      href="{{ url_for('static', filename='style.css') }}"
-    />
+    <style>
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        font-family: Arial, sans-serif;
+      }
+      .container {
+        text-align: center;
+      }
+      canvas {
+        border: 2px solid #333;
+        background-color: black;
+      }
+      .buttons {
+        margin-top: 10px;
+      }
+      button {
+        margin: 0 10px;
+        padding: 5px 10px;
+      }
+    </style>
   </head>
   <body>
     <div class="container">
@@ -19,7 +39,6 @@
       </div>
       <div id="predictionResult"></div>
     </div>
-
     <script>
       const canvas = document.getElementById("drawingCanvas");
       const ctx = canvas.getContext("2d");
@@ -27,16 +46,12 @@
       const predictButton = document.getElementById("predictButton");
       const predictionResult = document.getElementById("predictionResult");
 
-      // Center the canvas
-      document.body.style.display = "flex";
-      document.body.style.justifyContent = "center";
-      document.body.style.alignItems = "center";
-      document.body.style.height = "100vh";
-      canvas.style.border = "1px solid black";
+      // Initialize canvas with black background
+      ctx.fillStyle = "white";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       // Set up drawing
       let drawing = false;
-
       canvas.addEventListener("mousedown", startDrawing);
       canvas.addEventListener("mousemove", draw);
       canvas.addEventListener("mouseup", stopDrawing);
@@ -55,15 +70,19 @@
       function draw(event) {
         if (!drawing) return;
 
-        ctx.lineWidth = 15;
+        // Set drawing properties
+        ctx.lineWidth = 20;
         ctx.lineCap = "round";
         ctx.strokeStyle = "black";
 
+        // Draw line
         ctx.lineTo(
           event.clientX - canvas.offsetLeft,
           event.clientY - canvas.offsetTop,
         );
         ctx.stroke();
+
+        // Reset path
         ctx.beginPath();
         ctx.moveTo(
           event.clientX - canvas.offsetLeft,
@@ -73,28 +92,47 @@
 
       // Clear canvas
       clearButton.addEventListener("click", () => {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "white";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
         predictionResult.innerHTML = "";
       });
 
       // Convert canvas to base64 and send to Flask backend for prediction
       predictButton.addEventListener("click", async () => {
-        const imageData = canvas.toDataURL();
+        try {
+          predictionResult.innerHTML = "Predicting...";
+          predictButton.disabled = true;
 
-        const response = await fetch("/predict", {
-          method: "POST",
-          body: new URLSearchParams({ image: imageData }),
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
-        });
+          // Convert canvas to data URL
+          const imageData = canvas.toDataURL();
 
-        const result = await response.json();
+          // Send prediction request
+          const response = await fetch("/predict", {
+            method: "POST",
+            body: new URLSearchParams({ image: imageData }),
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded",
+            },
+          });
 
-        if (result.error) {
-          predictionResult.innerHTML = "Error: " + result.error;
-        } else {
-          predictionResult.innerHTML = "Predicted Digit: " + result.prediction;
+          // Check response
+          if (!response.ok) {
+            throw new Error("Prediction request failed");
+          }
+
+          // Process result
+          const result = await response.json();
+          if (result.error) {
+            predictionResult.innerHTML = "Error: " + result.error;
+          } else {
+            predictionResult.innerHTML =
+              "Predicted Digit: " + result.prediction;
+          }
+        } catch (error) {
+          predictionResult.innerHTML = "Network or prediction error";
+          console.error(error);
+        } finally {
+          predictButton.disabled = false;
         }
       });
     </script>

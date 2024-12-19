@@ -7,20 +7,23 @@ import base64
 
 app = Flask(__name__)
 
-# Load the ONNX model
 onnx_model_path = "./mnist_model.onnx"
 ort_session = ort.InferenceSession(onnx_model_path)
 
 
 def preprocess_image(image_data):
-    img_data = base64.b64decode(image_data.split(",")[1])
-    img = Image.open(io.BytesIO(img_data)).convert("L")
-
-    img = img.resize((28, 28))  # Resize to 28x28 pixels
-    img = np.array(img).astype(np.float32) / 255.0  # Normalize to [0, 1]
-    img = img.reshape(1, 28, 28)  # Reshape to (1, 28, 28)
-
-    return img
+    try:
+        img_data = base64.b64decode(image_data.split(",")[1])
+        img = Image.open(io.BytesIO(img_data)).convert("L")
+        img = img.resize((28, 28))
+        img_array = np.array(img).astype(np.float32)
+        img_array = 255 - img_array
+        img_array = img_array / 255.0
+        img_array = img_array.reshape(1, 28, 28)
+        return img_array
+    except Exception as e:
+        print(f"Preprocessing error: {e}")
+        raise
 
 
 @app.route("/")
@@ -36,10 +39,13 @@ def predict():
         input_name = ort_session.get_inputs()[0].name
         outputs = ort_session.run(None, {input_name: input_data})
         predicted_class = np.argmax(outputs[0], axis=1)[0]
+        print(input_data)
+        print("Raw model outputs:", outputs[0])
+        print("Predicted class:", predicted_class)
 
         return jsonify({"prediction": str(predicted_class)})
-
     except Exception as e:
+        print(f"Prediction error: {e}")
         return jsonify({"error": str(e)}), 500
 
 
